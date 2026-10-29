@@ -63,6 +63,8 @@ SENSITIVE_PATTERNS = (
 # imports are made side-effect free.
 #   SGLANG_LOGGING_CONFIG_PATH / VLLM_CONFIGURE_LOGGING -- logging setup on import.
 #   VLLM_XPU_USE_SAMPLER_KERNEL -- set by vLLM XPU import path on some builds.
+#   SGL_JIT_TORCH_INCLUDE / SGL_JIT_TORCH_LIB -- set by `import sgl_kernel` on
+#   XPU (sgl-kernel-xpu), which exports torch paths for its runtime JIT.
 #   TLLM_LOG_LEVEL / OMPI_MCA_coll_ucc_enable -- set by `import tensorrt_llm`,
 #   which the trtllm test modules import at module scope.
 ALLOWED_COLLECTION_ENV_MUTATIONS = frozenset(
@@ -70,6 +72,8 @@ ALLOWED_COLLECTION_ENV_MUTATIONS = frozenset(
         "SGLANG_LOGGING_CONFIG_PATH",
         "VLLM_CONFIGURE_LOGGING",
         "VLLM_XPU_USE_SAMPLER_KERNEL",
+        "SGL_JIT_TORCH_INCLUDE",
+        "SGL_JIT_TORCH_LIB",
         "TLLM_LOG_LEVEL",
         "OMPI_MCA_coll_ucc_enable",
     }
