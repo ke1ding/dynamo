@@ -94,13 +94,15 @@ if [ "$APPROX_MODE" = false ]; then
     KV_EVENTS_ARGS_2=(--kv-events-config "{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:${KV_EVENT_PORT2}\"}")
 fi
 
+# intel_xpu attention backend, as in deploy/xpu/*.yaml; it accepts --page-size 64 or 128
 OTEL_SERVICE_NAME=dynamo-worker-1 DYN_SYSTEM_PORT=${DYN_SYSTEM_PORT_WORKER1:-8081} \
 ZE_AFFINITY_MASK=$GPU_WORKER1 python3 -m dynamo.sglang \
   --model-path "$MODEL" \
   --served-model-name "$MODEL" \
-  --page-size 16 \
+  --page-size 64 \
   --tp 1 \
   --device xpu \
+  --attention-backend intel_xpu \
   --trust-remote-code \
   "${KV_EVENTS_ARGS_1[@]}" \
   --enable-metrics \
@@ -111,9 +113,10 @@ OTEL_SERVICE_NAME=dynamo-worker-2 DYN_SYSTEM_PORT=${DYN_SYSTEM_PORT_WORKER2:-808
 ZE_AFFINITY_MASK=$GPU_WORKER2 python3 -m dynamo.sglang \
   --model-path "$MODEL" \
   --served-model-name "$MODEL" \
-  --page-size 16 \
+  --page-size 64 \
   --tp 1 \
   --device xpu \
+  --attention-backend intel_xpu \
   --trust-remote-code \
   "${KV_EVENTS_ARGS_2[@]}" \
   --enable-metrics \
