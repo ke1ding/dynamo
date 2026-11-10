@@ -71,14 +71,16 @@ OTEL_SERVICE_NAME=dynamo-frontend \
 python3 -m dynamo.frontend &
 
 # run worker with metrics enabled
+# intel_xpu attention backend, as in deploy/xpu/*.yaml; it accepts --page-size 64 or 128
 WORKER_MODULE="dynamo.sglang"
 OTEL_SERVICE_NAME=dynamo-worker DYN_SYSTEM_PORT=${DYN_SYSTEM_PORT:-8081} \
 python3 -m "$WORKER_MODULE" \
   --model-path "$MODEL" \
   --served-model-name "$MODEL" \
-  --page-size 16 \
+  --page-size 64 \
   --tp 1 \
   --device xpu \
+  --attention-backend intel_xpu \
   --trust-remote-code \
   --enable-metrics \
   $GPU_MEM_ARGS \
