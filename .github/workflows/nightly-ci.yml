@@ -1474,6 +1474,16 @@ jobs:
       pytest_markers: 'vllm'
       source_ref: ${{ needs.resolve-source-sha.outputs.source_sha }}
 
+  sglang-test-xpu:
+    name: sglang-xpu
+    needs: [resolve-source-sha, compute-release-mode]
+    if: ${{ needs.compute-release-mode.outputs.run_tests == 'true' }}
+    uses: $/.github/workflows/xpu-ci.yaml
+    with:
+      framework: sglang
+      pytest_markers: 'sglang'
+      source_ref: ${{ needs.resolve-source-sha.outputs.source_sha }}
+
   # ============================================================================
   # DYNAMO RUNTIME PIPELINE
   # ============================================================================
