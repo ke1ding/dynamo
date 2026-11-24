@@ -64,7 +64,7 @@ def clear_stale_fpm_env(monkeypatch):
 # SGLang test configurations
 sglang_configs = {
     "aggregated": SGLangConfig(
-        # Uses backend agg.sh (with metrics enabled) for testing standard
+        # Uses xpu/agg_xpu.sh (with metrics enabled) for testing standard
         # aggregated deployment with metrics collection
         name="aggregated_xpu",
         directory=sglang_dir,
@@ -72,16 +72,11 @@ sglang_configs = {
         marks=[
             pytest.mark.core,
             pytest.mark.xpu_1,
-            pytest.mark.profiled_vram_gib(
-                3.7
-            ),  # ~2.9 GiB peak on Arc Pro B70 at recommended token count
+            pytest.mark.profiled_vram_gib(3.6),  # ~3.5 GiB peak on Arc Pro B70
             pytest.mark.requested_sglang_kv_tokens(
                 2048
-            ),  # >= prompt(~16) + max_tokens(1000) + scheduler reserve;
-            # SGLang 0.5.11 silently hangs (no scheduler activity, no error)
-            # when prompt+max_tokens nears max_total_tokens. Bisected hang
-            # threshold ~1040 for these payloads; 2048 leaves headroom.
-            pytest.mark.timeout(360),  # ~4x ~88s on Arc Pro B70
+            ),  # >= prompt(~16) + max_tokens(1000) + scheduler reserve
+            pytest.mark.timeout(360),  # ~4x ~85s on Arc Pro B70
             pytest.mark.pre_merge,
         ],
         model="Qwen/Qwen3-0.6B",
@@ -113,9 +108,7 @@ sglang_configs = {
         marks=[
             pytest.mark.core,
             pytest.mark.xpu_1,
-            pytest.mark.profiled_vram_gib(
-                3.9
-            ),  # ~2.3 GiB peak on Arc Pro B70 at recommended token count
+            pytest.mark.profiled_vram_gib(2.6),  # ~2.6 GiB peak on Arc Pro B70
             pytest.mark.requested_sglang_kv_tokens(
                 512
             ),  # 2x safety over min=256; payloads are ~16-token prompts + 30 max_tokens
@@ -142,9 +135,8 @@ sglang_configs = {
             ),
         ],
     ),
-    # Speculative decoding: Qwen3-8B main model with an EAGLE3 draft model
-    # (see launch/agg_spec_decoding.sh). Both repos are ungated.
-    # Nightly-only: the 8B base plus EAGLE3 draft model is intentionally outside pre-merge CI.
+    # KV-aware routing across two workers (one per XPU); checks that KV events
+    # reach the router and are exported as metrics.
     "kv_events": SGLangConfig(
         name="kv_events_xpu",
         directory=sglang_dir,
@@ -153,13 +145,13 @@ sglang_configs = {
             pytest.mark.router,
             pytest.mark.xpu_2,
             pytest.mark.profiled_vram_gib(
-                7.4
-            ),  # 2x 3.7 GiB (one worker per XPU); B70 peak ~2.6 + ~2.6 GiB
+                5.7
+            ),  # one worker per XPU: ~2.9 + ~2.8 GiB peak on 2x Arc Pro B70
             pytest.mark.requested_sglang_kv_tokens(
                 2048
             ),  # per worker; same budget as "aggregated" (max_tokens=1000 payloads)
-            pytest.mark.timeout(240),  # ~4x ~53s on 2x Arc Pro B70
-            pytest.mark.pre_merge,
+            pytest.mark.timeout(240),  # ~4x ~55s on 2x Arc Pro B70
+            pytest.mark.post_merge,
         ],
         model="Qwen/Qwen3-0.6B",
         env={},
@@ -184,13 +176,11 @@ sglang_configs = {
             # 7B) -- keeps the coverage, cuts VRAM. TinyLlama-1.1B-Chat is
             # already used in the router e2e suite.
             # Profiled on an Arc Pro B70 at the 2048-token KV cap below.
-            pytest.mark.profiled_vram_gib(3.9),  # ~3.3 GiB peak
+            pytest.mark.profiled_vram_gib(3.5),  # ~3.5 GiB peak
             pytest.mark.requested_sglang_kv_tokens(
                 2048
             ),  # >= prompt(~16) + max_tokens(1000) + scheduler reserve;
-            # SGLang 0.5.11 silently hangs when prompt+max_tokens nears
-            # max_total_tokens (bisected ~1040 for these payloads). Matches
-            # the "aggregated" config above.
+            # same budget as the "aggregated" config above.
             pytest.mark.timeout(300),  # 1.1B loads quickly; CI margin
             pytest.mark.post_merge,
         ],
@@ -205,7 +195,6 @@ sglang_configs = {
             completion_payload_default(),
         ],
     ),
-    # ── Diffusion pre_merge smoke tests ─────────────────────────────────
 }
 
 
