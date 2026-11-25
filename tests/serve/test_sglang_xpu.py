@@ -151,7 +151,7 @@ sglang_configs = {
                 2048
             ),  # per worker; same budget as "aggregated" (max_tokens=1000 payloads)
             pytest.mark.timeout(240),  # ~4x ~55s on 2x Arc Pro B70
-            pytest.mark.post_merge,
+            pytest.mark.pre_merge,
         ],
         model="Qwen/Qwen3-0.6B",
         env={},
