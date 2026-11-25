@@ -38,6 +38,7 @@ import pytest
                 pytest.mark.core,
                 pytest.mark.e2e,
                 pytest.mark.gpu_1,
+                pytest.mark.xpu_1,
                 pytest.mark.profiled_vram_gib(0),
             ],
         ),

@@ -80,12 +80,26 @@ jobs:
       pytest_markers: 'vllm and pre_merge and not multimodal'
 
   # ============================================================================
+  # XPU CI – SGLANG
+  # ============================================================================
+
+  xpu-ci-sglang:
+    needs: [changed-files]
+    if: >-
+      needs.changed-files.outputs.core == 'true' ||
+      needs.changed-files.outputs.sglang == 'true'
+    uses: $/.github/workflows/xpu-ci.yaml
+    with:
+      framework: sglang
+      pytest_markers: 'sglang and pre_merge and not multimodal'
+
+  # ============================================================================
   # STATUS CHECK
   # ============================================================================
 
   xpu-status-check:
     runs-on: ubuntu-24.04
-    needs: [guard, changed-files, xpu-ci-vllm]
+    needs: [guard, changed-files, xpu-ci-vllm, xpu-ci-sglang]
     if: always() && needs.guard.outputs.has_xpu_label == 'true'
     steps:
       - name: Check all XPU jobs

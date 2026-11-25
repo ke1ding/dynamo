@@ -521,6 +521,7 @@ areas:
   - dev/observability/xpu_smi_exporter.py
   - tests/router/test_router_e2e_with_vllm_xpu.py
   - tests/serve/multimodal_profiles/vllm_xpu.py
+  - tests/serve/test_sglang_xpu.py
   - tests/serve/test_vllm_xpu.py
 required_owners:
 - glob: components/src/dynamo/planner/connectors/clients/kubernetes_api.py
@@ -1563,14 +1564,20 @@ shared:
   - xpu
   - ops
   - backend-vllm
+  - backend-sglang
 - glob: .github/workflows/xpu-ci.yaml
   owners:
   - xpu
   - ops
   - backend-vllm
+  - backend-sglang
 - glob: examples/backends/vllm/**/xpu/**
   owners:
   - backend-vllm
+  - xpu
+- glob: examples/backends/sglang/**/xpu/**
+  owners:
+  - backend-sglang
   - xpu
 - glob: tests/router/test_router_e2e_with_vllm_xpu.py
   owners:
@@ -1582,6 +1589,11 @@ shared:
   - runtime
   - xpu
   - backend-vllm
+- glob: tests/serve/test_sglang_xpu.py
+  owners:
+  - runtime
+  - xpu
+  - backend-sglang
 - glob: dev/observability/*xpu*
   owners:
   - xpu

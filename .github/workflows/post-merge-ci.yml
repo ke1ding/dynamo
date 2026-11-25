@@ -802,6 +802,18 @@ jobs:
       framework: vllm
       pytest_markers: '(pre_merge or post_merge) and vllm'
 
+  sglang-test-xpu:
+    name: sglang-xpu
+    needs: [config]
+    # XPU is not validated on release branches.
+    if: >-
+      !startsWith(github.ref_name, 'release/') &&
+      (github.event_name != 'workflow_dispatch' || needs.config.outputs.run_sglang == 'true')
+    uses: $/.github/workflows/xpu-ci.yaml
+    with:
+      framework: sglang
+      pytest_markers: '(pre_merge or post_merge) and sglang'
+
   # ============================================================================
   # IMAGE COMPLIANCE
   # ============================================================================
